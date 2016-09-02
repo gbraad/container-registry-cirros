@@ -1,0 +1,25 @@
+image: docker:git
+services:
+- docker:dind
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+  - git clone https://github.com/ewindisch/docker-cirros.git brew --depth 1 -b master
+
+
+clone_base:
+  script:
+    - docker pull cirros:0.3.4
+    - docker tag cirros:0.3.4 registry.gitlab.com/gbraad/cirros:0.3.4
+    - docker push registry.gitlab.com/gbraad/cirros:0.3.4
+  only:
+    - master
+
+build_base:
+  script:
+    - docker build -t registry.gitlab.com/gbraad/cirros:base0.3.4 ./brew/ 
+    - docker push registry.gitlab.com/gbraad/cirros:base0.3.4
+  only:
+    - master
+  when: manual
+
